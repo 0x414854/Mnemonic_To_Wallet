@@ -1,0 +1,7 @@
+binascii
+ecdsa
+hashlib
+hmac
+python-dotenv
+shadePy
+tqdm

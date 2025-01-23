@@ -1,3 +1,7 @@
+.DS_Store
+
 .env
 
 utils/1_addresses.db
+utils/wallets.db
+utils/wallets.db-journal

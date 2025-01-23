@@ -14,13 +14,8 @@ from tqdm import tqdm
 # Add other chains
     # ETH
     # SOL
-# Save all information in the DB (sqlite)
-    # All wallet info (seed, master private key, chain code, address)
 # Create table in DB to get unique mnemonic
-# Add Logging
-# Create Readme.md
-# ✅ Add a check on the generated address against all the addresses
-# ✅ Add plusieurs taille de mnemonic 12-24
+
 
 
 GREEN, RED, BRIGHT_GREY, YELLOW, RESET = (
@@ -30,12 +25,16 @@ GREEN, RED, BRIGHT_GREY, YELLOW, RESET = (
 
 load_dotenv()
 
-BIP39_FILE = os.getenv("BIP39_FILE")
 ALL_LEGACY_BTC_WALLET_DB_FILE = os.getenv("ALL_LEGACY_BTC_DB_WALLET_FILE")
+BIP39_FILE = os.getenv("BIP39_FILE")
 WALLETS_DB_FILE = os.getenv("WALLETS_DB_FILE")
 
 LOG_FILE = os.getenv("LOG_FILE")
 RESULT_FILE = os.getenv("RESULT_FILE")
+
+log_dir = os.path.dirname(LOG_FILE)
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
 
 logging.basicConfig(
     filename=LOG_FILE,
@@ -44,7 +43,33 @@ logging.basicConfig(
 )
 
 with open(BIP39_FILE, 'r') as file:
-    WORDS = file.read().splitlines()
+    WORDS = file.read().splitlines() 
+
+def create_wallets_table(db_path):
+    if os.path.exists(db_path):
+        logging.info(f"Database file '{db_path}' already exists.")
+    else:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS wallets (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    mnemonic TEXT UNIQUE NOT NULL,
+                    seed TEXT NOT NULL,
+                    master_private_key TEXT NOT NULL,
+                    chain_code TEXT NOT NULL,
+                    address TEXT NOT NULL
+                )
+            """)
+            conn.commit()
+            print(f"{GREEN}Table 'wallets' has been created{RESET}")
+            logging.info(f"Database '{db_path}' initialized.")
+        except sqlite3.OperationalError as e:
+            print(f"{RED}ERROR: Could not create table 'wallets': {e}{RESET}")
+            logging.error(f"Could not create table 'wallets': {e}")
+        finally:
+            conn.close()
 
 def GetUniqueMnemonic(len_seeds):
     len_seed = random.choice(len_seeds)
@@ -76,7 +101,6 @@ def generate_address_from_private_key(private_key):
     signing_key = SigningKey.from_string(private_key, curve=SECP256k1)
     verifying_key = signing_key.verifying_key
     public_key = b'\x04' + verifying_key.to_string()
-    # SHA-256 hash followed by RIPEMD-160
     sha256_hash = hashlib.sha256(public_key).digest()
     ripemd160 = hashlib.new('ripemd160')
     ripemd160.update(sha256_hash)
@@ -84,9 +108,7 @@ def generate_address_from_private_key(private_key):
     # Add the network prefix (0x00 for Bitcoin Mainnet)
     prefix = b'\x00'
     prefixed_key = prefix + public_key_hash
-    # Calculate the checksum (double SHA-256 of the previous data)
     checksum = hashlib.sha256(hashlib.sha256(prefixed_key).digest()).digest()[:4]
-    # Add the checksum and encode in Base58
     final_key = prefixed_key + checksum
     return base58_encode(final_key)
 
@@ -116,10 +138,34 @@ def is_address_in_db(db_path, address):
         return False
     except sqlite3.OperationalError as e:
         print(f"{RED}ERROR: SQL Error : {e}{RESET}")
+        logging.error(f"ERROR: SQL Error : {e}")
         return False
     except Exception as e:
         print(f"{RED}ERROR: Error checking the address : {e}{RESET}")
+        logging.error(f"ERROR: Error checking the address : {e}")
         return False
+    
+def save_wallets_to_db(mnemonic, seed, master_private_key, chain_code, address):
+    conn = sqlite3.connect(WALLETS_DB_FILE)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO wallets (mnemonic, seed, master_private_key, chain_code, address)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            mnemonic,
+            binascii.hexlify(seed).decode('utf-8'),
+            binascii.hexlify(master_private_key).decode('utf-8'),
+            binascii.hexlify(chain_code).decode('utf-8'),
+            address
+        ))
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        print(f"{RED}ERROR: Duplicate mnemonic or address. Details: {e}{RESET}")
+        logging.error(f"Duplicate mnemonic or address: {mnemonic}")
+    finally:
+        conn.close()
+
 
 def save_wallet_info(mnemonic, seed, master_private_key, chain_code, address):
     try:
@@ -136,6 +182,7 @@ def save_wallet_info(mnemonic, seed, master_private_key, chain_code, address):
         logging.error(f"ERROR: Error saving wallet information : {e}")
 
 def main():
+    create_wallets_table(WALLETS_DB_FILE)
     len_seeds = [12, 24]
     while True:
         mnemonic = GetUniqueMnemonic(len_seeds)
@@ -150,11 +197,15 @@ def main():
         address = generate_address_from_private_key(master_private_key)
         print(f"{BRIGHT_GREY}Bitcoin Address :{RESET} {address}")
 
+        save_wallets_to_db(mnemonic, seed, master_private_key, chain_code, address)
+        
         if is_address_in_db(ALL_LEGACY_BTC_WALLET_DB_FILE, address):
             print(f"{GREEN}Address found in the database : {address}{RESET}")
             logging.info(f"Address found in the database : {address}")
+            save_wallet_info(mnemonic, seed, master_private_key, chain_code, address)
         else:
             print(f"{RED}Address not found in the database : {address}{RESET}")
+        
 
 
 if __name__ == "__main__":
