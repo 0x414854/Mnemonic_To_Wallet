@@ -161,7 +161,7 @@ def save_wallets_to_db(mnemonic, seed, master_private_key, chain_code, address):
         ))
         conn.commit()
     except sqlite3.IntegrityError as e:
-        print(f"{RED}ERROR: Duplicate mnemonic or address. Details: {e}{RESET}")
+        print(f"{RED}ERROR: Duplicate mnemonic or address. Details : {e}{RESET}")
         logging.error(f"Duplicate mnemonic or address: {mnemonic}")
     finally:
         conn.close()
@@ -198,7 +198,7 @@ def main():
         print(f"{BRIGHT_GREY}Bitcoin Address :{RESET} {address}")
 
         save_wallets_to_db(mnemonic, seed, master_private_key, chain_code, address)
-        
+
         if is_address_in_db(ALL_LEGACY_BTC_WALLET_DB_FILE, address):
             print(f"{GREEN}Address found in the database : {address}{RESET}")
             logging.info(f"Address found in the database : {address}")

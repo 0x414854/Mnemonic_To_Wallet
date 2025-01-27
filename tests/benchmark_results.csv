@@ -1,0 +1,25 @@
+Function,Iterations,Time (s)
+GetUniqueMnemonic,1000,0.0044569161254912615
+GetUniqueMnemonic,5000,0.031214083079248667
+GetUniqueMnemonic,10000,0.04518887493759394
+GetUniqueMnemonic,20000,0.08284570788964629
+GetUniqueMnemonic,50000,0.20859070890583098
+GetUniqueMnemonic,100000,0.41291762492619455
+mnemonic_to_seed,1000,0.9609214998781681
+mnemonic_to_seed,5000,4.8118540837895125
+mnemonic_to_seed,10000,9.57405437482521
+mnemonic_to_seed,20000,19.00434925011359
+mnemonic_to_seed,50000,47.50893383403309
+mnemonic_to_seed,100000,95.44908754201606
+seed_to_master_key,1000,0.0021838750690221786
+seed_to_master_key,5000,0.011110584018751979
+seed_to_master_key,10000,0.02193587482906878
+seed_to_master_key,20000,0.04341191705316305
+seed_to_master_key,50000,0.10706604202277958
+seed_to_master_key,100000,0.21265991707332432
+generate_address_from_private_key,1000,0.4897950831800699
+generate_address_from_private_key,5000,2.4067485840059817
+generate_address_from_private_key,10000,4.829756791004911
+generate_address_from_private_key,20000,9.673139207996428
+generate_address_from_private_key,50000,24.37116291699931
+generate_address_from_private_key,100000,49.06402420811355

@@ -120,7 +120,51 @@ By proceeding with this project, you acknowledge that it is your responsibility 
 
 ## Benchmarks
 
-Coming Soon
+Here are the benchmark results for different functions, measured over various iterations :
+
+| Function                           | Iterations   | Time (s)           |
+| ---------------------------------- | ------------ | ------------------ |
+| GetUniqueMnemonic                  | 1000         | 0.0045             |
+| GetUniqueMnemonic                  | 5000         | 0.0312             |
+| GetUniqueMnemonic                  | 10000        | 0.0452             |
+| GetUniqueMnemonic                  | 20000        | 0.0828             |
+| GetUniqueMnemonic                  | 50000        | 0.2086             |
+| GetUniqueMnemonic                  | 100000       | 0.4129             |
+| ---------------------------------- | ------------ | ------------------ |
+| mnemonic_to_seed                   | 1000         | 0.9609             |
+| mnemonic_to_seed                   | 5000         | 4.8118             |
+| mnemonic_to_seed                   | 10000        | 9.5740             |
+| mnemonic_to_seed                   | 20000        | 19.0043            |
+| mnemonic_to_seed                   | 50000        | 47.5089            |
+| mnemonic_to_seed                   | 100000       | 95.4491            |
+| ---------------------------------- | ------------ | ------------------ |
+| seed_to_master_key                 | 1000         | 0.0022             |
+| seed_to_master_key                 | 5000         | 0.0111             |
+| seed_to_master_key                 | 10000        | 0.0219             |
+| seed_to_master_key                 | 20000        | 0.0434             |
+| seed_to_master_key                 | 50000        | 0.1071             |
+| seed_to_master_key                 | 100000       | 0.2126             |
+| ---------------------------------- | ------------ | ------------------ |
+| generate_address_from_private_key  | 1000         | 0.4897             |
+| generate_address_from_private_key  | 5000         | 2.4067             |
+| generate_address_from_private_key  | 10000        | 4.8297             |
+| generate_address_from_private_key  | 20000        | 9.6731             |
+| generate_address_from_private_key  | 50000        | 24.3712            |
+| generate_address_from_private_key  | 100000       | 49.0640            |
+
+### Notes
+
+- Times are measured in seconds (`s`) and correspond to the total time taken for each number of iterations.
+- The benchmarks were conducted using the `benchmarks.py` script with the `timeit` module.
+- These results may vary depending on the performance of the machine used.
+
+### Instructions to Update Benchmarks
+
+- Run the benchmark script
+
+  ```bash
+  python3 tests/benchmarks.py
+  ```
 
 ## 🛣️ Roadmap
 
@@ -130,8 +174,8 @@ Coming Soon
   - [ ] `SOL`
 - [ ] `Manage mnemonics in SQLite database`
 - [ ] `Ensure 'GetUniqueMnemonic()' skips mnemonics already in 'wallets.db' to avoid duplicates`
-- [ ] `Implement tests`
-- [ ] `Benchmark performance metrics`
+- ✅ `Implement tests`
+- ✅ `Benchmark performance metrics`
 - ✅ `Add a check on the generated address against all the addresses`
 - ✅ `Add Logging`
 - ✅ `Create README`
@@ -204,7 +248,7 @@ Thank you so much for your generosity. Your support truly means the world to us 
 
 ## 📄 License
 
-This project is licensed under the **[MIT License](https://github.com/0x414854/Mnemonic_Hunt/blob/main/LICENSE)**.
+This project is licensed under the **[MIT License](https://github.com/0x414854/Mnemonic_To_Wallet/blob/main/LICENSE)**.
 
 ## 👤 Author
 
